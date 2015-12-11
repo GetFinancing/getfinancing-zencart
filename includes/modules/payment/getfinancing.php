@@ -73,9 +73,9 @@ class getfinancing {
         $this->gf_environment = MODULE_PAYMENT_GETFINANCING_ENVIRONMENT;
 
         if ($this->gf_environment == "Test") {
-            $this->gf_url = 'https://api-test.getfinancing.com:10001/merchant/' . $this->gf_merchant_id . '/requests';
+            $this->gf_url = 'https://api-test.getfinancing.com/merchant/' . $this->gf_merchant_id . '/requests';
         } else {
-            $this->gf_url = 'https://api.getfinancing.com:10000/merchant/' . $this->gf_merchant_id . '/requests';
+            $this->gf_url = 'https://api.getfinancing.com/merchant/' . $this->gf_merchant_id . '/requests';
         }
 
     }
