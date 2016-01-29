@@ -212,6 +212,8 @@ class getfinancing {
         $messageStack->add_session('checkout_payment', MODULE_PAYMENT_GETFINANCING_TEXT_NOT_AVAILABLE, 'error');
 
         $gfjs = '
+	<script type="text/javascript" src="https://partner.getfinancing.com/libs/1.0/getfinancing.js"></script>
+
         <script type="text/javascript">
             var onComplete = function() {
                 // Emulates onclick
@@ -222,9 +224,12 @@ class getfinancing {
                 window.location.href="' . $url_ko . '";
             };
             $("#btn_submit").hide();
-            new GetFinancing("' . $gfResponse->href . '", onComplete, onAbort);
-        </script>';
 
+	    $( document ).ready(function() {
+            new GetFinancing("' . $gfResponse->href . '", onComplete, onAbort);
+	    });
+
+        </script>';
         return $gfjs;
     }
 
