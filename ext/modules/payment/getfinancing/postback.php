@@ -42,14 +42,12 @@
 
   # lookup corresponding transaction:
   $gf_transaction = $db->Execute($sql_get_transaction);
-  
   $orderId = (int) $gf_transaction->fields['zen_order_id'];
 
   // If no order id getted then exit process.
   if ($orderId == 0){
-    die();     
+    throw new Exception('Order not found');      
   }
-
   # lookup for the order.
   $order = $db->Execute("select orders_id from " . TABLE_ORDERS . " where orders_id = '" . $gf_transaction->fields['zen_order_id'] . "'");
 
@@ -57,7 +55,7 @@
 
   // If no order matching then exit process.
   if ($orderIdCheck != $orderId) {
-    die();     
+     throw new Exception('No order maching');     
   }
   
   # What to do.
