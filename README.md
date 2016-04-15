@@ -1,4 +1,4 @@
-Installing the module
+nstalling the module
 ---------------------
 
 - unzip the .zip file
@@ -21,20 +21,11 @@ Adding additional needed libraries
 Edit your template and add this line between your HEAD tags:
 
 ```javascript
-<script type="text/javascript" src="https://partner.getfinancing.com/libs/1.0/getfinancing.js"></script>
+<script type="text/javascript" src="https://cdn.getfinancing.com/libs/1.0/getfinancing.js"></script>
 ```
 
 NOTE: Normally this template is located at:
 zencart_root/includes/templates/[your_template]/common/
-
-Opening the firewall
---------------------
-Your server needs to be able to communicate with the GetFinancing platform.
-For this to work, the firewall needs to allow outgoing connections on ports
-10000 and 10001.
-
-If you do not know how to do this yourself, please ask your hosting provider
-to do this for you.
 
 Testing
 -------

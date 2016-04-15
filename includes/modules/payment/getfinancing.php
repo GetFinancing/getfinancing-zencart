@@ -212,7 +212,7 @@ class getfinancing {
         $messageStack->add_session('checkout_payment', MODULE_PAYMENT_GETFINANCING_TEXT_NOT_AVAILABLE, 'error');
 
         $gfjs = '
-	<script type="text/javascript" src="https://partner.getfinancing.com/libs/1.0/getfinancing.js"></script>
+	<script type="text/javascript" src="https://cdn.getfinancing.com/libs/1.0/getfinancing.js"></script>
 
         <script type="text/javascript">
             var onComplete = function() {
