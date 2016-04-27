@@ -1,14 +1,14 @@
 <?php
 /*
- * 
+ *
  * $Id$
- * 
+ *
  * GetFinancing payment gateway implementation for ZenCart
  * https://www.getfinancing.com
- * 
+ *
  * Copyright (c) 2015 GetFinancing
  * @contributor @sortegam
- * 
+ *
  */
 
   chdir('../../../../');
@@ -23,10 +23,10 @@
   $parsed_data = json_decode($rawPOSTBody);
 
   if (GF_DEBUG) {
-    echo (PHP_EOL . " Raw Post Body". PHP_EOL);        
+    echo (PHP_EOL . " Raw Post Body". PHP_EOL);
     echo ("---------------------------------". PHP_EOL);
     print_r($rawPOSTBody);
-    echo (PHP_EOL . " JSON Parsed Body". PHP_EOL);        
+    echo (PHP_EOL . " JSON Parsed Body". PHP_EOL);
     echo ("---------------------------------". PHP_EOL);
     print_r($parsed_data);
 
@@ -46,39 +46,45 @@
 
   // If no order id getted then exit process.
   if ($orderId == 0){
-    throw new Exception('Order not found');      
+    throw new Exception('Order not found');
   }
   # lookup for the order.
-  $order = $db->Execute("select orders_id from " . TABLE_ORDERS . " where orders_id = '" . $gf_transaction->fields['zen_order_id'] . "'");
+  $order = $db->Execute("select orders_id, orders_status from " . TABLE_ORDERS . " where orders_id = '" . $gf_transaction->fields['zen_order_id'] . "'");
 
   $orderIdCheck = (int) $order->fields['orders_id'];
-
+  $orderStatus = (int) $order->fields['orders_status'];
   // If no order matching then exit process.
   if ($orderIdCheck != $orderId) {
-     throw new Exception('No order maching');     
+     throw new Exception('No order maching');
   }
-  
+
   # What to do.
 
   $set_order_to = "";
   $msg_history = "";
 
   if ($updates->status == "preapproved") {
-    $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_PREAPPROVED_ID;
-    $msg_history = "GetFinancing Pre-approved the order: " . $orderId;
+    if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
+      $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_PREAPPROVED_ID;
+      $msg_history = "GetFinancing Pre-approved the order: " . $orderId;
+    }
+
   }
   if ($updates->status == "approved") {
     $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID;
     $msg_history = "GetFinancing Approved the order: " . $orderId;
   }
   if ($updates->status == "rejected") {
-    $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
-    $msg_history = "GetFinancing Rejected the order: " . $orderId;
+    if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
+      $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
+      $msg_history = "GetFinancing Rejected the order: " . $orderId;
+    }
+
   }
 
 
   # update order:
-   
+
   if (empty($set_order_to) == FALSE) {
     # update order status to reflect Completed status and store transaction ID in field cc_number:
     $new_order_status_id = $set_order_to;
@@ -93,5 +99,5 @@
     zen_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
   }
 
-  require('includes/application_bottom.php'); 
+  require('includes/application_bottom.php');
 ?>
