@@ -75,11 +75,8 @@
     $msg_history = "GetFinancing Approved the order: " . $orderId;
   }
   if ($updates->status == "rejected") {
-    if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
       $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
       $msg_history = "GetFinancing Rejected the order: " . $orderId;
-    }
-
   }
 
 
