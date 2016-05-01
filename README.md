@@ -18,14 +18,14 @@ Activating the module
 Adding additional needed libraries
 ----------------------------------
 
-Edit your template and add this line between your HEAD tags:
+Edit your template and add this line:
 
-```javascript
-<script type="text/javascript" src="https://cdn.getfinancing.com/libs/1.0/getfinancing.js"></script>
-```
+$_SESSION['cart']->reset(true);
 
-NOTE: Normally this template is located at:
-zencart_root/includes/templates/[your_template]/common/
+at the begining of the file
+ 'includes/modules/pages/checkout_success/header_php.php'
+
+This allow to clean the cart after a success purchase.
 
 Testing
 -------
