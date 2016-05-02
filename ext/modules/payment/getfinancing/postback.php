@@ -67,30 +67,33 @@
   $gf_orderId = $order->fields['orders_id'];
   unset($order->fields['orders_id']);
   zen_db_perform(TABLE_ORDERS, (array) $order->fields);
-  $orderId = $db->insert_ID();
+  $new_orderId = $db->insert_ID();
+
+
 
 
   $order_total = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_TOTAL . " where orders_id = " . $orderId);
   unset($order_total->fields['orders_total_id']);
-  $order_total->fields['orders_id']=$orderId;
+  $order_total->fields['orders_id']=$new_orderId;
+
   zen_db_perform(TABLE_ORDERS_TOTAL, (array) $order_total->fields);
   $orderTotalId = $db->insert_ID();
 
   $order_products = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS . " where orders_id = " .$orderId);
   unset($order_products->fields['orders_products_id']);
-  $order_products->fields['orders_id']=$orderId;
+  $order_products->fields['orders_id']=$new_orderId;
   zen_db_perform(TABLE_ORDERS_PRODUCTS, (array) $order_products->fields);
   $orderProductsID = $db->insert_ID();
 
   $order_products_attr = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES . " where orders_id = " . $orderId);
   unset($order_products_attr->fields['orders_products_attributes_id']);
-  $order_products_attr->fields['orders_id']=$orderId;
+  $order_products_attr->fields['orders_id']=$new_orderId;
   zen_db_perform(TABLE_ORDERS_PRODUCTS_ATTRIBUTES, (array) $order_products_attr->fields);
   $order_products_attr_id = $db->insert_ID();
 
   $order_products_down = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD . " where orders_id = " .$orderId);
   unset($order_products_down->fields['orders_products_download_id']);
-  $order_products_down->fields['orders_id']=$orderId;
+  $order_products_down->fields['orders_id']=$new_orderId;
   zen_db_perform(TABLE_ORDERS_PRODUCTS_DOWNLOAD, (array) $order_products_down->fields);
   $order_products_down_id = $db->insert_ID();
 
@@ -102,17 +105,17 @@
   if ($updates->status == "preapproved") {
     if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
       $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_PREAPPROVED_ID;
-      $msg_history = "GetFinancing Pre-approved the order: " . $orderId;
+      $msg_history = "GetFinancing Pre-approved the order: " . $new_orderId;
     }
 
   }
   if ($updates->status == "approved") {
     $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID;
-    $msg_history = "GetFinancing Approved the order: " . $orderId;
+    $msg_history = "GetFinancing Approved the order: " . $new_orderId;
   }
   if ($updates->status == "rejected") {
       $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
-      $msg_history = "GetFinancing Rejected the order: " . $orderId;
+      $msg_history = "GetFinancing Rejected the order: " . $new_orderId;
   }
 
 
@@ -121,10 +124,10 @@
   if (empty($set_order_to) == FALSE) {
     # update order status to reflect Completed status and store transaction ID in field cc_number:
     $new_order_status_id = $set_order_to;
-    $db->Execute("update " . TABLE_ORDERS . " set orders_status = '" . $new_order_status_id . "', last_modified = now() where orders_id = '" . $orderId . "'");
+    $db->Execute("update " . TABLE_ORDERS . " set orders_status = '" . $new_order_status_id . "', last_modified = now() where orders_id = '" . $new_orderId . "'");
 
     # update order status history:
-    $sql_data_array = array('orders_id' => $orderId,
+    $sql_data_array = array('orders_id' => $new_orderId,
                             'orders_status_id' => $new_order_status_id,
                             'date_added' => 'now()',
                             'customer_notified' => '0',
