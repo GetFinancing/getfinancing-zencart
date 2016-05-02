@@ -26,6 +26,12 @@
 <?php
 
 define('TABLE_GETFINANCING',  'getfinancing');
+//quote table system
+define('TABLE_GETFINANCING_ORDERS',  'getfinancing_orders');
+define('TABLE_GETFINANCING_ORDERS_TOTAL',  'getfinancing_orders_total');
+define('TABLE_GETFINANCING_ORDERS_PRODUCTS',  'getfinancing_orders_prodcuts');
+define('TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES',  'getfinancing_orders_products_attributes');
+define('TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD',  'getfinancing_orders_products_download');
 define('GF_DEBUG', false);
 
 
@@ -275,7 +281,7 @@ class getfinancing {
                                   'orders_status' => $order->info['order_status'],
                                   'currency' => $order->info['currency'],
                                   'currency_value' => $order->info['currency_value']);
-          zen_db_perform(TABLE_ORDERS, $sql_data_array);
+          zen_db_perform(TABLE_GETFINANCING_ORDERS, $sql_data_array);
           $insert_id = $db->insert_ID();
 
 
@@ -287,7 +293,7 @@ class getfinancing {
                                     'class' => $order_totals[$i]['code'],
                                     'sort_order' => $order_totals[$i]['sort_order']);
 
-            zen_db_perform(TABLE_ORDERS_TOTAL, $sql_data_array);
+            zen_db_perform(TABLE_GETFINANCING_ORDERS_TOTAL, $sql_data_array);
           }
 
           for ($i=0, $n=sizeof($order->products); $i<$n; $i++) {
@@ -300,7 +306,7 @@ class getfinancing {
                                     'products_tax' => $order->products[$i]['tax'],
                                     'products_quantity' => $order->products[$i]['qty']);
 
-            zen_db_perform(TABLE_ORDERS_PRODUCTS, $sql_data_array);
+            zen_db_perform(TABLE_GETFINANCING_ORDERS_PRODUCTS, $sql_data_array);
       $order_products_id = $db->insert_ID();
 
 
@@ -333,7 +339,7 @@ class getfinancing {
                                         'options_values_price' => $attributes_values['options_values_price'],
                                         'price_prefix' => $attributes_values['price_prefix']);
 
-                zen_db_perform(TABLE_ORDERS_PRODUCTS_ATTRIBUTES, $sql_data_array);
+                zen_db_perform(TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES, $sql_data_array);
 
                 if ((DOWNLOAD_ENABLED == 'true') && isset($attributes_values['products_attributes_filename']) && tep_not_null($attributes_values['products_attributes_filename'])) {
                   $sql_data_array = array('orders_id' => $insert_id,
@@ -342,7 +348,7 @@ class getfinancing {
                                           'download_maxdays' => $attributes_values['products_attributes_maxdays'],
                                           'download_count' => $attributes_values['products_attributes_maxcount']);
 
-                  zen_db_perform(TABLE_ORDERS_PRODUCTS_DOWNLOAD, $sql_data_array);
+                  zen_db_perform(TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD, $sql_data_array);
                 }
               }
             }
@@ -353,7 +359,7 @@ class getfinancing {
           $pagamastardeOrderGeneratedInConfirmation = $insert_id;
 
           $_SESSION['order_number_created']=$insert_id;
-
+          //$_SESSION['cart']->cartID = $_SESSION['cart']->generate_cart_id();
 
       }
 
@@ -535,9 +541,6 @@ class getfinancing {
 
 
     function goToPaymentFailed() {
-      $_SESSION['pagamastardeOrderGeneratedInConfirmation']='';
-      $_SESSION['order_created'] = '';
-      
         $messageStack->add_session('checkout_payment', MODULE_PAYMENT_GETFINANCING_TEXT_NOT_AVAILABLE, 'error');
         unset( $_SESSION['getfinancing_token'] );
         zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', false, false));
@@ -604,6 +607,11 @@ class getfinancing {
 
         $db->Execute("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
         $db->Execute("drop table " . TABLE_GETFINANCING);
+        $db->Execute("drop table " . TABLE_GETFINANCING_ORDERS);
+        $db->Execute("drop table " . TABLE_GETFINANCING_ORDERS_TOTAL);
+        $db->Execute("drop table " . TABLE_GETFINANCING_ORDERS_PRODUCTS);
+        $db->Execute("drop table " . TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES);
+        $db->Execute("drop table " . TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD);
     }
 
     function _check_install_gf_table() {
@@ -618,6 +626,158 @@ class getfinancing {
                     KEY (gf_token))";
             $db->Execute($sql);
         }
+
+        // simulate quote - create an order in getfinancing schema and create real order when receiving the postback.
+
+        if (!$sniffer->table_exists(TABLE_GETFINANCING_ORDERS)) {
+            $sql = "CREATE TABLE ".TABLE_GETFINANCING_ORDERS." (
+                orders_id int(11) NOT NULL,
+                customers_id int(11) NOT NULL DEFAULT '0',
+                customers_name varchar(64) NOT NULL DEFAULT '',
+                customers_company varchar(64) DEFAULT NULL,
+                customers_street_address varchar(64) NOT NULL DEFAULT '',
+                customers_suburb varchar(32) DEFAULT NULL,
+                customers_city varchar(32) NOT NULL DEFAULT '',
+                customers_postcode varchar(10) NOT NULL DEFAULT '',
+                customers_state varchar(32) DEFAULT NULL,
+                customers_country varchar(32) NOT NULL DEFAULT '',
+                customers_telephone varchar(32) NOT NULL DEFAULT '',
+                customers_email_address varchar(96) NOT NULL DEFAULT '',
+                customers_address_format_id int(5) NOT NULL DEFAULT '0',
+                delivery_name varchar(64) NOT NULL DEFAULT '',
+                delivery_company varchar(64) DEFAULT NULL,
+                delivery_street_address varchar(64) NOT NULL DEFAULT '',
+                delivery_suburb varchar(32) DEFAULT NULL,
+                delivery_city varchar(32) NOT NULL DEFAULT '',
+                delivery_postcode varchar(10) NOT NULL DEFAULT '',
+                delivery_state varchar(32) DEFAULT NULL,
+                delivery_country varchar(32) NOT NULL DEFAULT '',
+                delivery_address_format_id int(5) NOT NULL DEFAULT '0',
+                billing_name varchar(64) NOT NULL DEFAULT '',
+                billing_company varchar(64) DEFAULT NULL,
+                billing_street_address varchar(64) NOT NULL DEFAULT '',
+                billing_suburb varchar(32) DEFAULT NULL,
+                billing_city varchar(32) NOT NULL DEFAULT '',
+                billing_postcode varchar(10) NOT NULL DEFAULT '',
+                billing_state varchar(32) DEFAULT NULL,
+                billing_country varchar(32) NOT NULL DEFAULT '',
+                billing_address_format_id int(5) NOT NULL DEFAULT '0',
+                payment_method varchar(128) NOT NULL DEFAULT '',
+                payment_module_code varchar(32) NOT NULL DEFAULT '',
+                shipping_method varchar(255) NOT NULL DEFAULT '',
+                shipping_module_code varchar(32) NOT NULL DEFAULT '',
+                coupon_code varchar(32) NOT NULL DEFAULT '',
+                cc_type varchar(20) DEFAULT NULL,
+                cc_owner varchar(64) DEFAULT NULL,
+                cc_number varchar(32) DEFAULT NULL,
+                cc_expires varchar(4) DEFAULT NULL,
+                cc_cvv blob,
+                last_modified datetime DEFAULT NULL,
+                date_purchased datetime DEFAULT NULL,
+                orders_status int(5) NOT NULL DEFAULT '0',
+                orders_date_finished datetime DEFAULT NULL,
+                currency char(3) DEFAULT NULL,
+                currency_value decimal(14,6) DEFAULT NULL,
+                order_total decimal(14,2) DEFAULT NULL,
+                order_tax decimal(14,2) DEFAULT NULL,
+                paypal_ipn_id int(11) NOT NULL DEFAULT '0',
+                ip_address varchar(96) NOT NULL DEFAULT ''
+              )";
+            $db->Execute($sql);
+
+            $sql="ALTER TABLE ".TABLE_GETFINANCING_ORDERS."
+            ADD PRIMARY KEY (orders_id),
+            ADD KEY idx_status_orders_cust_zen (orders_status,orders_id,customers_id),
+            ADD KEY idx_date_purchased_zen (date_purchased),
+            ADD KEY idx_cust_id_orders_id_zen (customers_id,orders_id)";
+            $db->Execute($sql);
+
+            $sql="ALTER TABLE ".TABLE_GETFINANCING_ORDERS."
+            MODIFY orders_id int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1";
+            $db->Execute($sql);
+        }
+
+
+        if (!$sniffer->table_exists(TABLE_GETFINANCING_ORDERS_TOTAL)) {
+            $sql = "CREATE TABLE ".TABLE_GETFINANCING_ORDERS_TOTAL." (
+            orders_total_id int(10) UNSIGNED NOT NULL,
+            orders_id int(11) NOT NULL DEFAULT '0',
+            title varchar(255) NOT NULL DEFAULT '',
+            text varchar(255) NOT NULL DEFAULT '',
+            value decimal(15,4) NOT NULL DEFAULT '0.0000',
+            class varchar(32) NOT NULL DEFAULT '',
+            sort_order int(11) NOT NULL DEFAULT '0'
+          )";
+            $db->Execute($sql);
+        }
+
+        if (!$sniffer->table_exists(TABLE_GETFINANCING_ORDERS_PRODUCTS)) {
+            $sql = "CREATE TABLE ".TABLE_GETFINANCING_ORDERS_PRODUCTS." (
+              orders_products_id int(11) NOT NULL,
+              orders_id int(11) NOT NULL DEFAULT '0',
+              products_id int(11) NOT NULL DEFAULT '0',
+              products_model varchar(32) DEFAULT NULL,
+              products_name varchar(64) NOT NULL DEFAULT '',
+              products_price decimal(15,4) NOT NULL DEFAULT '0.0000',
+              final_price decimal(15,4) NOT NULL DEFAULT '0.0000',
+              products_tax decimal(7,4) NOT NULL DEFAULT '0.0000',
+              products_quantity float NOT NULL DEFAULT '0',
+              onetime_charges decimal(15,4) NOT NULL DEFAULT '0.0000',
+              products_priced_by_attribute tinyint(1) NOT NULL DEFAULT '0',
+              product_is_free tinyint(1) NOT NULL DEFAULT '0',
+              products_discount_type tinyint(1) NOT NULL DEFAULT '0',
+              products_discount_type_from tinyint(1) NOT NULL DEFAULT '0',
+              products_prid tinytext NOT NULL
+            )";
+            $db->Execute($sql);
+        }
+
+        if (!$sniffer->table_exists(TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES)) {
+            $sql = "CREATE TABLE ".TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES." (
+            orders_products_attributes_id int(11) NOT NULL,
+            orders_id int(11) NOT NULL DEFAULT '0',
+            orders_products_id int(11) NOT NULL DEFAULT '0',
+            products_options varchar(32) NOT NULL DEFAULT '',
+            products_options_values text NOT NULL,
+            options_values_price decimal(15,4) NOT NULL DEFAULT '0.0000',
+            price_prefix char(1) NOT NULL DEFAULT '',
+            product_attribute_is_free tinyint(1) NOT NULL DEFAULT '0',
+            products_attributes_weight float NOT NULL DEFAULT '0',
+            products_attributes_weight_prefix char(1) NOT NULL DEFAULT '',
+            attributes_discounted tinyint(1) NOT NULL DEFAULT '1',
+            attributes_price_base_included tinyint(1) NOT NULL DEFAULT '1',
+            attributes_price_onetime decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_factor decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_factor_offset decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_factor_onetime decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_factor_onetime_offset decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_qty_prices text,
+            attributes_qty_prices_onetime text,
+            attributes_price_words decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_words_free int(4) NOT NULL DEFAULT '0',
+            attributes_price_letters decimal(15,4) NOT NULL DEFAULT '0.0000',
+            attributes_price_letters_free int(4) NOT NULL DEFAULT '0',
+            products_options_id int(11) NOT NULL DEFAULT '0',
+            products_options_values_id int(11) NOT NULL DEFAULT '0',
+            products_prid tinytext NOT NULL
+          )";
+            $db->Execute($sql);
+        }
+
+        if (!$sniffer->table_exists(TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD)) {
+            $sql = "CREATE TABLE ".TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD." (
+              orders_products_download_id int(11) NOT NULL,
+              orders_id int(11) NOT NULL DEFAULT '0',
+              orders_products_id int(11) NOT NULL DEFAULT '0',
+              orders_products_filename varchar(255) NOT NULL DEFAULT '',
+              download_maxdays int(2) NOT NULL DEFAULT '0',
+              download_count int(2) NOT NULL DEFAULT '0',
+              products_prid tinytext NOT NULL
+            )";
+            $db->Execute($sql);
+        }
+
+
     }
 
     /**
