@@ -63,6 +63,28 @@
      throw new Exception('No order maching');
   }
 
+
+    $set_order_to = "";
+    $msg_history = "";
+
+    if ($updates->status == "preapproved") {
+      if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
+        $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_PREAPPROVED_ID;
+        $msg_history = "GetFinancing Pre-approved the order";
+      }
+      die("Order preapproved. Skipping.");
+
+    }
+    if ($updates->status == "rejected") {
+        $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
+        $msg_history = "GetFinancing Rejected the order";
+        die("Order rejected. Skipping.");
+    }
+    if ($updates->status == "approved") {
+      $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID;
+      $msg_history = "GetFinancing Approved the order";
+    }
+
   //insert order
   $gf_orderId = $order->fields['orders_id'];
   unset($order->fields['orders_id']);
@@ -96,24 +118,6 @@
 
   $order_products_down = $db->Execute("update " . TABLE_GETFINANCING . " set new_zen_order_id = ".$new_orderId." where zen_order_id = " .$orderId);
 
-  $set_order_to = "";
-  $msg_history = "";
-
-  if ($updates->status == "preapproved") {
-    if ($orderStatus != MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID ){
-      $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_PREAPPROVED_ID;
-      $msg_history = "GetFinancing Pre-approved the order: " . $new_orderId;
-    }
-
-  }
-  if ($updates->status == "approved") {
-    $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_APPROVED_ID;
-    $msg_history = "GetFinancing Approved the order: " . $new_orderId;
-  }
-  if ($updates->status == "rejected") {
-      $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
-      $msg_history = "GetFinancing Rejected the order: " . $new_orderId;
-  }
   # update order:
   if (empty($set_order_to) == FALSE) {
 
