@@ -361,6 +361,7 @@ class getfinancing {
           $_SESSION['order_number_created']=$insert_id;
           //$_SESSION['cart']->cartID = $_SESSION['cart']->generate_cart_id();
 
+
       }
 
       return false;
@@ -621,6 +622,7 @@ class getfinancing {
                     id int(11) unsigned NOT NULL auto_increment,
                     date_process int(11) NOT NULL default '0',
                     zen_order_id varchar(200) NOT NULL default '0',
+                    new_zen_order_id varchar(200) NOT NULL default '0',
                     gf_token varchar(200) NOT NULL default '0',
                     PRIMARY KEY (id),
                     KEY (gf_token))";

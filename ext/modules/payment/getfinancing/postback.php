@@ -43,7 +43,7 @@
   $updates = $parsed_data->updates;
   $merchant_transaction_id = $parsed_data->merchant_transaction_id;
 
-  $sql_get_transaction = "select zen_order_id from " . TABLE_GETFINANCING . " where gf_token = '" . $merchant_transaction_id . "'";
+  $sql_get_transaction = "select zen_order_id from " . TABLE_GETFINANCING . " where gf_token = '" . $merchant_transaction_id . "' and new_zen_order_id = 0";
 
   # lookup corresponding transaction:
   $gf_transaction = $db->Execute($sql_get_transaction);
@@ -68,9 +68,6 @@
   unset($order->fields['orders_id']);
   zen_db_perform(TABLE_ORDERS, (array) $order->fields);
   $new_orderId = $db->insert_ID();
-
-
-
 
   $order_total = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_TOTAL . " where orders_id = " . $orderId);
   unset($order_total->fields['orders_total_id']);
@@ -97,7 +94,7 @@
   zen_db_perform(TABLE_ORDERS_PRODUCTS_DOWNLOAD, (array) $order_products_down->fields);
   $order_products_down_id = $db->insert_ID();
 
-  # What to do.
+  $order_products_down = $db->Execute("update " . TABLE_GETFINANCING . " set new_zen_order_id = ".$new_orderId." where zen_order_id = " .$orderId);
 
   $set_order_to = "";
   $msg_history = "";
@@ -117,11 +114,9 @@
       $set_order_to = MODULE_PAYMENT_GETFINANCING_ORDER_STATUS_POSTBACK_REJECTED_ID;
       $msg_history = "GetFinancing Rejected the order: " . $new_orderId;
   }
-
-
   # update order:
-
   if (empty($set_order_to) == FALSE) {
+
     # update order status to reflect Completed status and store transaction ID in field cc_number:
     $new_order_status_id = $set_order_to;
     $db->Execute("update " . TABLE_ORDERS . " set orders_status = '" . $new_order_status_id . "', last_modified = now() where orders_id = '" . $new_orderId . "'");
