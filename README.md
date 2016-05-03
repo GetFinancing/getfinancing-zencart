@@ -18,9 +18,16 @@ Activating the module
 Adding additional needed libraries
 ----------------------------------
 
-Edit your template and add this line:
+Edit your template and add this lines:
 
-$_SESSION['cart']->reset(true);
+$sql_get_transaction = "select * from getfinancing where zen_order_id = '" . $_SESSION['order_number_created'] . "'";
+$gf_transaction = $db->Execute($sql_get_transaction);
+$orderId = (int) $gf_transaction->fields['new_zen_order_id'];
+if ($orderId > 0){
+   $_SESSION['cart']->reset(true);
+   $_SESSION['order_number_created'] = $orderId;
+}
+
 
 at the begining of the file
  'includes/modules/pages/checkout_success/header_php.php'
