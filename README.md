@@ -2,7 +2,7 @@ General Instructions
 -----------------------------
 1. Create your merchant account to offer monthly payment options to your consumers directly on your ecommerce from here (http://www.getfinancing.com/signup) if you haven't done it yet.
 2. Download our module from the latest release here (https://github.com/GetFinancing/getfinancing-zencart/releases) or all the code in a zip file from here (https://github.com/GetFinancing/getfinancing-zencart/archive/master.zip)
-3. Setup the module with the information found under the Integration section on your portal account https://partner.getfinancing.com/partner/portal/. Also remember to change the postback url on your account for both testing and production environments. 
+3. Setup the module with the information found under the Integration section on your portal account https://partner.getfinancing.com/partner/portal/. Also remember to change the postback url on your account for both testing and production environments.
 4. Once the module is working properly and the lightbox opens on the request, we suggest you to add some conversion tools to your store so your users know before the payment page that they can pay monthly for the purchases at your site. You can find these copy&paste tools under your account inside the Integration section.
 5. Check our documentation (www.getfinancing.com/docs) or send us an email at (integrations@getfinancing.com) if you have any doubt or suggestions for this module. You can also send pull requests to our GitHub account (http://www.github.com/GetFinancing) if you feel you made an improvement to this module.
 
@@ -26,7 +26,7 @@ Activating the module
 Adding additional needed libraries
 ----------------------------------
 
-Edit your template and add this lines:
+Edit your template and add these lines:
 
 $sql_get_transaction = "select * from getfinancing where zen_order_id = '" . $_SESSION['order_number_created'] . "'";
 $gf_transaction = $db->Execute($sql_get_transaction);
@@ -40,7 +40,13 @@ if ($orderId > 0){
 at the begining of the file
  'includes/modules/pages/checkout_success/header_php.php'
 
-This allow to clean the cart after a success purchase.
+This will allow the cleaning of the cart after a successful purchase.
+
+Postback url
+------------
+
+This is the default url for postbacks which you need to configure in your account.
+http://YOUR_DOMAIN/ext/modules/payment/getfinancing/postback.php
 
 Testing
 -------
