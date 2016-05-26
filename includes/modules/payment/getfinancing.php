@@ -323,12 +323,11 @@ class getfinancing {
                                        and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "'
                                        and pa.options_id = popt.products_options_id
                                        and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "'
-                                       and pa.options_values_id = poval.products_options_values_id
-                                       and popt.language_id = '" . $languages_id . "'
-                                       and poval.language_id = '" . $languages_id . "'";
+                                       and pa.options_values_id = poval.products_options_values_id";
                   $attributes = $db->Execute($attributes_query);
                 } else {
-                  $attributes = $db->Execute("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . $order->products[$i]['id'] . "' and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . $languages_id . "' and poval.language_id = '" . $languages_id . "'");
+                  $attributes = $db->Execute("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . $order->products[$i]['id'] . "' and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id");
+
                 }
                 $attributes_values = $attributes->fields;
 

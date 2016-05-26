@@ -90,7 +90,6 @@
   unset($order->fields['orders_id']);
   zen_db_perform(TABLE_ORDERS, (array) $order->fields);
   $new_orderId = $db->insert_ID();
-
   $order_total = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_TOTAL . " where orders_id = " . $orderId);
   unset($order_total->fields['orders_total_id']);
   $order_total->fields['orders_id']=$new_orderId;
@@ -98,23 +97,51 @@
   zen_db_perform(TABLE_ORDERS_TOTAL, (array) $order_total->fields);
   $orderTotalId = $db->insert_ID();
 
-  $order_products = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS . " where orders_id = " .$orderId);
-  unset($order_products->fields['orders_products_id']);
-  $order_products->fields['orders_id']=$new_orderId;
-  zen_db_perform(TABLE_ORDERS_PRODUCTS, (array) $order_products->fields);
-  $orderProductsID = $db->insert_ID();
 
-  $order_products_attr = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES . " where orders_id = " . $orderId);
-  unset($order_products_attr->fields['orders_products_attributes_id']);
-  $order_products_attr->fields['orders_id']=$new_orderId;
-  zen_db_perform(TABLE_ORDERS_PRODUCTS_ATTRIBUTES, (array) $order_products_attr->fields);
-  $order_products_attr_id = $db->insert_ID();
+  $sql="select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS . " where orders_id = " .$orderId;
+  $results = $db->Execute($sql);
+  while (!$results->EOF) {
+      $results->fields['orders_id']=$new_orderId;
+      unset($results->fields['orders_products_id']);
 
-  $order_products_down = $db->Execute("select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD . " where orders_id = " .$orderId);
-  unset($order_products_down->fields['orders_products_download_id']);
-  $order_products_down->fields['orders_id']=$new_orderId;
-  zen_db_perform(TABLE_ORDERS_PRODUCTS_DOWNLOAD, (array) $order_products_down->fields);
-  $order_products_down_id = $db->insert_ID();
+
+      zen_db_perform(TABLE_ORDERS_PRODUCTS, (array) $results->fields);
+      $orderProductsID = $db->insert_ID();
+
+          $sql="select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES . " where orders_id = " . $orderId;
+          $results2 = $db->Execute($sql);
+          while (!$results2->EOF) {
+
+              $results2->fields['orders_id']=$new_orderId;
+              //$results2->fields['orders_products_id	']=$orderProductsID;
+              unset($results2->fields['orders_products_attributes_id']);
+
+              zen_db_perform(TABLE_ORDERS_PRODUCTS_ATTRIBUTES, (array) $results2->fields);
+              $order_products_attr_id = $db->insert_ID();
+              $order_products_down = $db->Execute("update " . TABLE_ORDERS_PRODUCTS_ATTRIBUTES . " set orders_products_id = ".$orderProductsID." where orders_products_attributes_id = " .$order_products_attr_id);
+                  $results2->MoveNext();
+          }
+
+
+          $sql="select * from " . TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD . " where orders_id = " .$orderId;
+          $results3 = $db->Execute($sql);
+          while (!$results3->EOF) {
+              $results3->fields['orders_id']=$new_orderId;
+              //$results3->fields['orders_products_id	']=$orderProductsID;
+              unset($results3->fields['orders_products_download_id']);
+
+              zen_db_perform(TABLE_ORDERS_PRODUCTS_DOWNLOAD, (array) $results3->fields);
+              $order_products_down_id = $db->insert_ID();
+              $order_products_down = $db->Execute("update " . TABLE_ORDERS_PRODUCTS_DOWNLOAD . " set orders_products_id = ".$orderProductsID." where orders_products_download_id = " .$order_products_down_id);
+
+                  $results3->MoveNext();
+          }
+
+          $results->MoveNext();
+  }
+
+
+
 
   $order_products_down = $db->Execute("update " . TABLE_GETFINANCING . " set new_zen_order_id = ".$new_orderId." where zen_order_id = " .$orderId);
 
