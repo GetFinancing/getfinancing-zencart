@@ -466,6 +466,7 @@ class getfinancing {
             'product_info'     => $this->_getProductsInfo(),
             'first_name'       => $order->customer['firstname'],
             'last_name'        => $order->customer['lastname'],
+            'phone'            => $order->customer['telephone'],
             'shipping_address' => array(
                 'street1'  => $order->delivery['street_address'],
                 'city'    => $order->delivery['city'],
