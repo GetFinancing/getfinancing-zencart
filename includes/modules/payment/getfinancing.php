@@ -32,7 +32,7 @@ define('TABLE_GETFINANCING_ORDERS_TOTAL',  'getfinancing_orders_total');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS',  'getfinancing_orders_prodcuts');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES',  'getfinancing_orders_products_attributes');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD',  'getfinancing_orders_products_download');
-define('GF_DEBUG', false);
+define('GF_DEBUG', true);
 
 
 class getfinancing {
@@ -482,7 +482,9 @@ class getfinancing {
             'version'          => '1.9',
             'shipping_amount'  => number_format($order->info['shipping_cost'], 2, '.', ''),
             'email'            => $order->customer['email_address'],
-            'merchant_loan_id' => $merchant_loan_id
+            'merchant_loan_id' => $merchant_loan_id,
+            'software_name' => 'ZenCart',
+            'software_version' =>  PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR 
         );
 
 
