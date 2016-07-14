@@ -32,7 +32,7 @@ define('TABLE_GETFINANCING_ORDERS_TOTAL',  'getfinancing_orders_total');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS',  'getfinancing_orders_prodcuts');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES',  'getfinancing_orders_products_attributes');
 define('TABLE_GETFINANCING_ORDERS_PRODUCTS_DOWNLOAD',  'getfinancing_orders_products_download');
-define('GF_DEBUG', true);
+define('GF_DEBUG', false);
 
 
 class getfinancing {
