@@ -466,6 +466,7 @@ class getfinancing {
             'product_info'     => $this->_getProductsInfo(),
             'first_name'       => $order->customer['firstname'],
             'last_name'        => $order->customer['lastname'],
+            'phone'            => $order->customer['telephone'],
             'shipping_address' => array(
                 'street1'  => $order->delivery['street_address'],
                 'city'    => $order->delivery['city'],
@@ -481,7 +482,9 @@ class getfinancing {
             'version'          => '1.9',
             'shipping_amount'  => number_format($order->info['shipping_cost'], 2, '.', ''),
             'email'            => $order->customer['email_address'],
-            'merchant_loan_id' => $merchant_loan_id
+            'merchant_loan_id' => $merchant_loan_id,
+            'software_name' => 'ZenCart',
+            'software_version' =>  PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR 
         );
 
 
