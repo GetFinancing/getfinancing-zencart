@@ -272,7 +272,8 @@ class getfinancing {
                                   'billing_state' => $order->billing['state'],
                                   'billing_country' => $order->billing['country']['title'],
                                   'billing_address_format_id' => $order->billing['format_id'],
-                                  'payment_method' => $order->info['payment_method'],
+                                  'payment_method' => 'getfinancing',
+                                  'payment_module_code' => 'getfinancing',
                                   'cc_type' => $order->info['cc_type'],
                                   'cc_owner' => zen_session_id(),
                                   'cc_number' => $order->info['cc_number'],
@@ -456,7 +457,6 @@ class getfinancing {
      * If successful, this will redirect to the GetFinancing page to process the payment.
      */
     function _processGFPay() {
-
         global $order, $messageStack, $db;
 
         $merchant_loan_id = md5(mktime() . $this->gf_merchant_id . $order->customer['firstname'] . $order->info['total']);
