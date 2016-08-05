@@ -37,7 +37,7 @@ define('GF_DEBUG', false);
 
 class getfinancing {
 
-    var $module_version = "1.0.0";
+    var $module_version = "1.0.1";
 
     var $code;
     var $title;
@@ -455,6 +455,24 @@ class getfinancing {
     }
 
     /**
+    * Function to get the cart items
+    * @return json
+    */
+    function _getCartItems() {
+        global $order;
+        if (sizeof($order->products)==0) {
+        }
+        $items = array();
+        foreach($order->products as $product) {
+            $items[]=array('display_name' => $product['name'],
+                           'unit_price' => $product['final_price'],
+                           'quantity' => $product['qty'],
+                          );
+        }
+        return json_encode($items);
+    }
+
+    /**
      * Simple log method.
      *
      * @param string msg The message.
@@ -472,10 +490,17 @@ class getfinancing {
         global $order, $messageStack, $db;
 
         $merchant_loan_id = md5(mktime() . $this->gf_merchant_id . $order->customer['firstname'] . $order->info['total']);
+        $callback_url =dirname(  sprintf(    "%s://%s%s",
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $_SERVER['SERVER_NAME'],
+        $_SERVER['REQUEST_URI'])).'/ext/modules/payment/getfinancing/postback.php';
+        $url_ko = zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false);
+        $ok_url = trim( zen_href_link(FILENAME_CHECKOUT_SUCCESS, '', 'SSL', false));
 
         $gf_data = array(
             'amount'           => round($order->info['total'], 2),
             'product_info'     => $this->_getProductsInfo(),
+            //'cart_items'       => $this->_getCartItems(),
             'first_name'       => $order->customer['firstname'],
             'last_name'        => $order->customer['lastname'],
             'phone'            => $order->customer['telephone'],
@@ -496,6 +521,10 @@ class getfinancing {
             'email'            => $order->customer['email_address'],
             'merchant_loan_id' => $merchant_loan_id,
             'software_name' => 'ZenCart',
+            'phone' => $order->customer['telephone'],
+            'postback_url' => $callback_url,
+            'success_url' => $ok_url,
+            'failure_url' => $url_ko,
             'software_version' =>  PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR
         );
 
