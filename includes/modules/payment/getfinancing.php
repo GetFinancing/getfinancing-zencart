@@ -355,7 +355,8 @@ class getfinancing {
 
                 zen_db_perform(TABLE_GETFINANCING_ORDERS_PRODUCTS_ATTRIBUTES, $sql_data_array);
 
-                if ((DOWNLOAD_ENABLED == 'true') && isset($attributes_values['products_attributes_filename']) && tep_not_null($attributes_values['products_attributes_filename'])) {
+                if ((DOWNLOAD_ENABLED == 'true') && isset($attributes_values['products_attributes_filename']) // && tep_not_null($attributes_values['products_attributes_filename'])
+                ) {
                   $sql_data_array = array('orders_id' => $insert_id,
                                           'orders_products_id' => $order_products_id,
                                           'orders_products_filename' => $attributes_values['products_attributes_filename'],
@@ -469,7 +470,7 @@ class getfinancing {
                            'quantity' => $product['qty'],
                           );
         }
-        return json_encode($items);
+        return $items;
     }
 
     /**
@@ -499,8 +500,8 @@ class getfinancing {
 
         $gf_data = array(
             'amount'           => round($order->info['total'], 2),
-            'product_info'     => $this->_getProductsInfo(),
-            //'cart_items'       => $this->_getCartItems(),
+            //'product_info'     => $this->_getProductsInfo(),
+            'cart_items'       => $this->_getCartItems(),
             'first_name'       => $order->customer['firstname'],
             'last_name'        => $order->customer['lastname'],
             'phone'            => $order->customer['telephone'],
